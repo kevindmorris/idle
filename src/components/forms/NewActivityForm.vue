@@ -22,19 +22,37 @@
       <div id="inputParticipantsHelp" class="form-text">The number of participants.</div>
     </div>
     <div class="mb-3">
-      <label for="inputPrice" class="form-label">Price</label>
+      <label for="inputPrice" class="form-label">Max Price: {{ price }}</label>
       <input
-        class="form-control"
+        class="form-range"
         id="inputPrice"
-        type="number"
+        type="range"
         min="0"
-        max="10"
-        step="1"
+        max="1"
+        step="0.1"
         aria-describedby="inputPriceHelp"
         v-model="price"
       />
       <div id="inputPriceHelp" class="form-text">
-        The price of the activity. (Scale from 0 to 1)
+        The maximum price of the activity. (Scale from 0 to 1)
+      </div>
+    </div>
+    <div class="mb-3">
+      <label for="inputAccessibility" class="form-label"
+        >Max Accessibility: {{ accessibility }}</label
+      >
+      <input
+        class="form-range"
+        id="inputAccessibility"
+        type="range"
+        min="0"
+        max="1"
+        step="0.1"
+        aria-describedby="inputAccessibilityHelp"
+        v-model="accessibility"
+      />
+      <div id="inputAccessibilityHelp" class="form-text">
+        The maximum accessibility of the activity. (Scale from 0 to 1)
       </div>
     </div>
     <div class="d-flex justify-content-start gap-1">
@@ -45,7 +63,14 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref } from "vue";
+import { ref, type Ref } from "vue";
+import { type Event } from "../../types";
+const emit = defineEmits({
+  onSubmit: (data: Event) => {
+    console.log(data);
+    return data;
+  }
+});
 
 const types = [
   "education",
@@ -61,22 +86,30 @@ const types = [
 
 const type: Ref<string> = ref("");
 const participants: Ref<string> = ref("");
-const price: Ref<string> = ref("");
+const price: Ref<number> = ref(0.5);
+const accessibility: Ref<number> = ref(0.5);
 
 const clear = () => {
   type.value = "";
   participants.value = "";
-  price.value = "";
+  price.value = 0.5;
+  accessibility.value = 0.5;
 };
 
 const submit = async () => {
   try {
     const response = await fetch(
-      "http://www.boredapi.com/api/activity?" + new URLSearchParams({ type: type.value }),
+      "http://www.boredapi.com/api/activity?" +
+        new URLSearchParams({
+          type: type.value,
+          participants: participants.value,
+          maxprice: price.value.toString(),
+          maxaccessibility: accessibility.value.toString()
+        }),
       { method: "GET" }
     );
     const data = await response.json();
-    console.log(data);
+    emit("onSubmit", data);
   } catch (error) {
     console.log(error);
   }
