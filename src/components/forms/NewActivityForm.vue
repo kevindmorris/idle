@@ -99,7 +99,7 @@ const clear = () => {
 const submit = async () => {
   try {
     const response = await fetch(
-      "http://www.boredapi.com/api/activity?" +
+      "https://www.boredapi.com/api/activity?" +
         new URLSearchParams({
           type: type.value,
           participants: participants.value,
